@@ -6,7 +6,7 @@ import {BehaviorSubject} from 'rxjs';
 })
 export class UserNameService {
 
-	private messageSource = new BehaviorSubject('pas connecté');
+	private messageSource: BehaviorSubject<string> = new BehaviorSubject('pas connecté');
 	currentMessage = this.messageSource.asObservable();
 
 	constructor() {
