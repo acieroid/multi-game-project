@@ -6,6 +6,7 @@ import {IJoiner} from '../../../domain/ijoiner';
 import {ICurrentPart} from '../../../domain/icurrentpart';
 import {Router} from '@angular/router';
 import {UserService} from '../../../services/user-service';
+import {map} from 'rxjs/operators';
 
 @Component({
 	selector: 'app-joining-page',
@@ -14,11 +15,11 @@ import {UserService} from '../../../services/user-service';
 })
 export class JoiningPageComponent implements OnInit {
 
-	observedJoinerList: Observable<IJoiner>;
 	partId: string;
 	gameName: string;
 	creator: boolean;
 	userName: string;
+	joinerNames: string[];
 
 	private observedGameDoc: AngularFirestoreDocument<ICurrentPart>;
 	private observedJoinerDoc: AngularFirestoreDocument<IJoiner>;
@@ -37,28 +38,27 @@ export class JoiningPageComponent implements OnInit {
 		this.userService.currentUsername.subscribe(userName => {
 			this.userName = userName;
 		});
-		this.setData();
-		this.setBeginningRedirection();
+		this.observedJoinerDoc = this.afs
+			.collection('joiners')
+			.doc(this.partId);
+		this.observedJoinerDoc.snapshotChanges()
+			.pipe(map(actions => actions.payload.data() as IJoiner))
+			.subscribe(joiners => this.joinerNames = joiners.names);
+		this.observedGameDoc = this.afs
+			.collection('parties/')
+			.doc(this.partId);
+		this.observedGameDoc.snapshotChanges()
+			.pipe(map(actions => actions.payload.data() as ICurrentPart))
+			.subscribe( actualPart => this.onPartUpdate(actualPart));
 	}
 
-	setData() {
-		console.log(this.partId + 'la partie qu\'on va charger');
-		this.observedJoinerDoc = this.afs.doc('joiners/' + this.partId);
-		this.observedJoinerList = this.observedJoinerDoc.valueChanges();
-		this.observedGameDoc = this.afs.doc('parties/' + this.partId);
-	}
-
-	setBeginningRedirection() {
-		// called after the game creation
-		this.observedGameDoc.valueChanges()
-			.subscribe(actualPart => {
-				this.creator = (actualPart.playerZero === this.userName);
-				if (actualPart.playerOne !== '') {
-					// when playerOne is set, it is because player zero (the game creator) choose him
-					// all joiner-wannabe, the creator, and the chosen one, are then redirected to the game component
-					this._route.navigate([actualPart.typeGame + 'Online']);
-				}
-			});
+	onPartUpdate(actualPart: ICurrentPart) {
+		this.creator = (actualPart.playerZero === this.userName);
+		if (actualPart.playerOne !== '') {
+			// when playerOne is set, it is because player zero (the game creator) choose him
+			// all joiner-wannabe, the creator, and the chosen one, are then redirected to the game component
+			this._route.navigate([actualPart.typeGame + 'Online']);
+		}
 	}
 
 	startGameWithPlayer(joiner: string) {

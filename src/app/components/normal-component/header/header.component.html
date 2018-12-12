@@ -1,5 +1,6 @@
-<div style="text-align: center">
+<div style="text-align: center; position: sticky; top: 0;">
 	Bienvenu sur <a [routerLink]="['/server']">Pantheon's Game</a>
 	<span *ngIf="userName !== ''">, {{ userName }}</span>
 	<span *ngIf="userName === ''">, <a [routerLink]="['/login-page']">connecte toi!</a></span>
+	<hr/>
 </div>

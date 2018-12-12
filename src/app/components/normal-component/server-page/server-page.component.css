@@ -1,9 +1,19 @@
-div {
+.circled {
 	border-style: solid;
 	padding: 25px;
 	border-radius: 25px;
+	margin: 10px;
+	overflow: auto;
 }
-
+.leftcolumn {
+	float: left;
+	width: 80%;
+}
+.rightcolumn {
+	float: right;
+	width: 20%;
+	height: 100%;
+}
 .table-hover tbody tr:hover td {
 
 }

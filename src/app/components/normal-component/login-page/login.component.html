@@ -1,27 +1,33 @@
-<div>
-    <form>
-		<label for="pseudoId"> User Name </label>
+<div class="container">
+    <form class="form-signin">
+		<h2 class="form-signin-heading">Connecte toi</h2>
+		<label for="pseudoId" class="sr-only">Pseudo</label>
 		<input id="pseudoId"
+			   class="form-control"
 			   [(ngModel)]='user.pseudo'
 			   name='pseudo'
+			   placeholder="Pseudo"
 			   type="text" />
-        <br/>
 
-		<label for="passwordId"> Password </label>
+		<label for="passwordId" class="sr-only">Password</label>
 		<input id="passwordId"
+			   class="form-control"
 			   [(ngModel)]='user.code'
 			   name="code"
+			   placeholder="Password"
 			   type="password" />
-        <br/>
 
-        <button type="submit"
+		<label for="guestButton" class="sr-only"> Exemple : guest123 </label>
+        <button id="guestButton"
+				type="submit"
+				class="btn btn-lg btn-primary btn-block"
 				(click)="connectAsGuest()" >Invité anonyme</button>
-		Exemple : guest123 <br/>
 
-		<button type="submit"
+		<label for="halfMemberButton" class="sr-only"> Exemple : jean, password:jaja (non crypté) </label>
+		<button id="halfMemberButton"
+				type="submit"
+				class="btn btn-lg btn-primary btn-block"
 				(click)="logAsHalfMember()" >Demi membre</button>
-		Exemple : jean, password:jaja (non crypté)
-		<br/>
 
         <!-- <button type="submit"
                 disabled

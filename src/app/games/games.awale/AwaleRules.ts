@@ -9,7 +9,7 @@ import {AwalePartSlice} from './AwalePartSlice';
 
 export class AwaleRules extends Rules {
 
-	static VERBOSE = true;
+	static VERBOSE = false;
 
 	private static mansoon(mansooningPlayer: number, board: number[][]): number {
 		/* capture all the seeds of the mansooning player

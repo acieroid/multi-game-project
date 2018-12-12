@@ -8,7 +8,7 @@
 			Voici la liste des joueurs à vouloir joindre cette partie :
 		</h6>
 		<ul>
-			<li *ngFor="let joiner of (observedJoinerList | async).names">
+			<li *ngFor="let joiner of joinerNames">
 				<button (click)="startGameWithPlayer(joiner)"
 						*ngIf="creator">
 					Jouer contre : {{ joiner }}

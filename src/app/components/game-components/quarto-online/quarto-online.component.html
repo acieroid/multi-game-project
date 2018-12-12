@@ -1,17 +1,17 @@
 <div>
 	<div id="up" style="align-content: center; text-align: center">
 		<div *ngIf="observerRole <2">
-			<div> Vous jouez contre {{ opponent.user.pseudo }} </div>
+			<div> Vous jouez contre {{ opponentPseudo }} </div>
 			<button *ngIf="!endGame" (click)="resign()"> Abandonner </button>
 			<br/>
 			<div *ngIf="allowedTimeoutVictory && !endGame">
-				{{ opponent.user.pseudo }} ne réagit plus :
+				{{ opponentPseudo }} ne réagit plus :
 				<button (click)="notifyTimeout()">
 					Victoire par timeout?
 				</button>
 			</div>
 		</div>
-		<div *ngIf="observerRole>=2"> {{ players[0] }} vs {{ players[1] }}</div>
+		<div *ngIf="observerRole>=2"> {{ playersZero }} vs {{ playersOne }}</div>
 
 		<div *ngIf="(!endGame) && (currentPlayer !== userName)"> C'est au tour de {{ currentPlayer }} </div>
 		<div *ngIf="(!endGame) && (currentPlayer === userName)"> C'est à votre tour ! </div>

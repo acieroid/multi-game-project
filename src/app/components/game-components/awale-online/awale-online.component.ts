@@ -29,20 +29,23 @@ export class AwaleOnlineComponent implements OnInit {
 
 	rules = new AwaleRules();
 	observerRole: number; // to see if the player is player zero (0) or one (1) or observatory (2)
-	players: string[] = null;
+	playersZero: string = null;
+	playersOne: string;
 	board: Array<Array<number>>;
 
-	observedPart: Observable<ICurrentPart>;
-	partDocument: AngularFirestoreDocument<ICurrentPart>;
+	private observedPart: Observable<ICurrentPart>;
+	private partDocument: AngularFirestoreDocument<ICurrentPart>;
 
 	partId: string;
 	userName: string;
 	currentPlayer: string;
-	captured: number[] = [0, 0];
+	capturedZero: number;
+	capturedOne: number;
 	turn = 0;
 	endGame = false;
 	winner: string;
-	opponent: IUserId;
+	private opponent: IUserId = null;
+	opponentPseudo: string;
 	allowedTimeoutVictory = false;
 
 	imagesLocation = 'gaviall/pantheonsgame/assets/images/circled_numbers/';
@@ -65,19 +68,15 @@ export class AwaleOnlineComponent implements OnInit {
 		this.rules.setInitialBoard();
 		this.board = this.rules.node.gamePartSlice.getCopiedBoard();
 
-		this.observedPart = this.afs.collection('parties').doc(this.partId).snapshotChanges()
-			.pipe(map(actions => {
-				return actions.payload.data() as ICurrentPart;
-			}));
-
+		this.partDocument = this.afs.collection('parties/').doc(this.partId);
+		this.observedPart = this.partDocument.snapshotChanges()
+			.pipe(map(actions => actions.payload.data() as ICurrentPart));
 		this.observedPart.subscribe(updatedICurrentPart =>
 			this.onCurrentPartUpdate(updatedICurrentPart));
-
-		this.partDocument = this.afs.doc('parties/' + this.partId);
 	}
 
 	onCurrentPartUpdate(updatedICurrentPart: ICurrentPart) {
-		if (this.players == null) {
+		if (this.playersZero == null) {
 			this.setPlayersDatas(updatedICurrentPart);
 		}
 		// fonctionne pour l'instant avec la victoire normale, l'abandon, et le timeout !
@@ -92,26 +91,25 @@ export class AwaleOnlineComponent implements OnInit {
 		let currentPartTurn;
 		while (this.rules.node.gamePartSlice.turn < nbPlayedMoves) {
 			currentPartTurn = this.rules.node.gamePartSlice.turn;
+			console.log('Move tenté : ' + MoveX.get(listMoves[currentPartTurn]).toString());
 			const bol: boolean = this.rules.choose(MoveX.get(listMoves[currentPartTurn]));
 		}
 		this.updateBoard();
 	}
 
 	setPlayersDatas(updatedICurrentPart: ICurrentPart) {
-		this.players = [
-			updatedICurrentPart.playerZero,
-			updatedICurrentPart.playerOne];
+		this.playersZero = updatedICurrentPart.playerZero;
+		this.playersOne = updatedICurrentPart.playerOne;
 		this.observerRole = 2;
-		let opponentName = '';
-		if (this.players[0] === this.userName) {
+		if (this.playersZero === this.userName) {
 			this.observerRole = 0;
-			opponentName = this.players[1];
-		} else if (this.players[1] === this.userName) {
+			this.opponentPseudo = this.playersOne;
+		} else if (this.playersOne === this.userName) {
 			this.observerRole = 1;
-			opponentName = this.players[0];
+			this.opponentPseudo = this.playersZero;
 		}
-		if (opponentName !== '') {
-			this.userDao.getUserDocRefByUserName(opponentName)
+		if (this.opponentPseudo !== '') {
+			this.userDao.getUserDocRefByUserName(this.opponentPseudo)
 				.onSnapshot(userQuerySnapshot =>
 					this.onUserUpdate(userQuerySnapshot));
 		}
@@ -123,6 +121,7 @@ export class AwaleOnlineComponent implements OnInit {
 			const id = doc.id;
 			if (this.opponent == null) {
 				this.opponent = {id: id, user: data};
+				this.opponentPseudo = this.opponent.user.pseudo;
 				this.startWatchingForOpponentTimeout();
 			}
 			this.opponent = {id: id, user: data};
@@ -140,7 +139,7 @@ export class AwaleOnlineComponent implements OnInit {
 	}
 
 	opponentHasTimedOut() {
-		const timeOutDuree = 30 * 1000;
+		const timeOutDuree = 20 * 1000;
 		console.log('lastActionTime of your opponant : ' + this.opponent.user.lastActionTime);
 		return (this.opponent.user.lastActionTime + timeOutDuree < Date.now());
 	}
@@ -169,8 +168,12 @@ export class AwaleOnlineComponent implements OnInit {
 		});
 	}
 
+	players(turn: number): string {
+		return turn % 2 === 0 ? this.playersZero : this.playersOne;
+	}
+
 	notifyVictory() {
-		const victoriousPlayer = this.players[(this.rules.node.gamePartSlice.turn + 1) % 2];
+		const victoriousPlayer = this.players(this.rules.node.gamePartSlice.turn + 1);
 		this.endGame = true;
 		this.winner = victoriousPlayer;
 		const docRef = this.partDocument.ref;
@@ -182,16 +185,18 @@ export class AwaleOnlineComponent implements OnInit {
 
 	isPlayerTurn() {
 		const indexPlayer = this.rules.node.gamePartSlice.turn % 2;
-		return this.players[indexPlayer] === this.userName;
+		return this.players(indexPlayer) === this.userName;
 	}
 
 	updateBoard() {
 		const awalePartSlice: AwalePartSlice = this.rules.node.gamePartSlice as AwalePartSlice;
 		this.board = awalePartSlice.getCopiedBoard();
 		this.turn = awalePartSlice.turn;
-		this.currentPlayer = this.players[awalePartSlice.turn % 2];
+		this.currentPlayer = this.players(awalePartSlice.turn);
 
-		this.captured = awalePartSlice.getCapturedCopy();
+		const captured = awalePartSlice.getCapturedCopy();
+		this.capturedZero = captured[0];
+		this.capturedOne = captured[1];
 	}
 
 	updateDBBoard(move: MoveX) {
@@ -239,6 +244,5 @@ export class AwaleOnlineComponent implements OnInit {
 			console.log('Mais c\'est un mouvement illegal');
 		}
 	}
-
 
 }

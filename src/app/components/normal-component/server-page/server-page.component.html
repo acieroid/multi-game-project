@@ -1,43 +1,57 @@
-<div id="actualGame">
-	<p>List of actual games</p>
-	<table class="table table-hover">
-		<thead>
-			<tr>
-				<th scope="col">Game Name</th>
-				<th scope="col">Player 0</th>
-				<th scope="col">Player 1</th>
-				<th scope="col">Turn</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr *ngFor="let part of partIds"
-				(click)="joinGame(part.id, part.part.typeGame)">
-				<td>{{ part.part.typeGame }}</td>
-				<td>{{ part.part.playerZero }}</td>
-				<td>{{ part.part.playerOne }}</td>
-				<td>{{ part.part.turn }}</td>
-			</tr>
-		</tbody>
-	</table>
+<div class="container-fluid">
+	<div class="leftcolumn">
+		<div id="actualGame" class="circled" style="height: 80%">
+			<p>List of actual games</p>
+			<table class="table table-hover">
+				<thead>
+				<tr>
+					<th scope="col">Game Name</th>
+					<th scope="col">Player 0</th>
+					<th scope="col">Player 1</th>
+					<th scope="col">Turn</th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr *ngFor="let part of partIds"
+					(click)="joinGame(part.id, part.part.typeGame)">
+					<td>{{ part.part.typeGame }}</td>
+					<td>{{ part.part.playerZero }}</td>
+					<td>{{ part.part.playerOne }}</td>
+					<td>{{ part.part.turn }}</td>
+				</tr>
+				</tbody>
+			</table>
+		</div>
+		<div id="chat" class="circled" style="height: 20%; float: bottom">
+			<h2> Parle à tes amis ! </h2>
+			<p> En travaux ... </p>
+		</div>
+	</div>
+
+	<div class="rightcolumn">
+		<div id="gameCreator" class="circled">
+			<p>choisi le jeu que tu crée</p>
+			<select [(ngModel)]='selectedGame'>
+				<option *ngFor="let gameName of gameNameList" value={{gameName}}>
+					{{ gameName }}
+				</option>
+			</select>
+			<br/>
+			<input type="button"
+				   value="online game"
+				   (click)="createGame()">
+			<br/>
+			<input type="button"
+				   value="local game"
+				   (click)="playLocally()">
+		</div>
+		<div id="onlineUser" class="circled">
+			<p> Recent User : </p>
+			<ul>
+				<li *ngFor="let user of activeUserList">{{ user.user.pseudo }} : {{ user.user.lastActionTime |
+					date:'HH:mm:ss':'+0100'}}
+				</li>
+			</ul>
+		</div>
+	</div>
 </div>
-<div id="onlineUser">
-	<p> Recent User : </p>
-	<ul>
-		<li *ngFor="let user of activeUserList">{{ user.user.pseudo }} : {{ user.user.lastActionTime | date:'HH:mm:ss':'+0100'}}</li>
-	</ul>
-</div>
-<div id="gameCreator">
-	<p>choisi le jeu que tu crée</p>
-	<select [(ngModel)]='selectedGame'>
-		<option *ngFor="let gameName of gameNameList" value={{gameName}}>
-			{{ gameName }}
-		</option>
-	</select>
-	<input type="button" value="online game" (click)="createGame()">
-	<input type="button" value="local game" (click)="playLocally()">
-</div>
-<!--
-<div id="chat">
-	<p>ici c'est le tchat (could do)</p>
-</div>
--->

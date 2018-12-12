@@ -29,7 +29,8 @@ export class QuartoOnlineComponent implements OnInit {
 
 	rules = new QuartoRules();
 	observerRole: number; // to see if the player is player zero (0) or one (1) or observatory (2)
-	players: string[] = null;
+	playersZero: string;
+	playersOne: string;
 	board: Array<Array<number>>;
 
 	observedPart: Observable<ICurrentPart>;
@@ -46,7 +47,8 @@ export class QuartoOnlineComponent implements OnInit {
 	private choosenX = -1;
 	private choosenY = -1;
 
-	opponent: IUserId;
+	private opponent: IUserId = null;
+	opponentPseudo: string;
 	allowedTimeoutVictory = false;
 	imagesLocation = 'gaviall/pantheonsgame/assets/images/quarto/'; // en prod
 	// imagesLocation = 'src/assets/images/quarto/'; // en dev
@@ -128,6 +130,7 @@ export class QuartoOnlineComponent implements OnInit {
 			const id = doc.id;
 			if (this.opponent == null) {
 				this.opponent = {id: id, user: data};
+				this.opponentPseudo = this.opponent.user.pseudo;
 				this.startWatchingForOpponentTimeout();
 			}
 			this.opponent = {id: id, user: data};
@@ -145,7 +148,7 @@ export class QuartoOnlineComponent implements OnInit {
 	}
 
 	opponentHasTimedOut() {
-		const timeOutDuree = 30 * 1000;
+		const timeOutDuree = 20 * 1000;
 		console.log('lastActionTime of your opponant : ' + this.opponent.user.lastActionTime);
 		return (this.opponent.user.lastActionTime + timeOutDuree < Date.now());
 	}
